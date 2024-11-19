@@ -86,7 +86,7 @@ class Gemini:
             return result.text.strip()
         finally:
             # Delete file to save space after critique
-            uploaded_file.delete()
+            # uploaded_file.delete()
             print(f"Deleted file: {uploaded_file.name}")
 
     def list_uploaded_files(self):

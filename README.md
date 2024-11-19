@@ -9,3 +9,7 @@ I also think that more features can be added such as a photo culling system that
 Packages:
     google.generativeai
     tkinter
+    python-dotenv
+    pillow?
+    pymongo
+    base64
