@@ -4,6 +4,8 @@
 import google.generativeai as genai
 from google.cloud import vision
 import os
+import json
+import datetime
 from dotenv import load_dotenv
 
 
@@ -31,6 +33,7 @@ class Gemini:
             raise ValueError("API key is not set in .env file")
         genai.configure(api_key=gemini_api_key)
         self._model = genai.GenerativeModel("gemini-1.5-flash")
+        self._model2 = genai.GenerativeModel("gemini-1.5-flash-8b")
         print("Gemini API configured successfully")
 
     def generate_theme(self):
@@ -40,16 +43,83 @@ class Gemini:
         :return: The generated theme as a Python dictionary
         :rtype: dict
         """
-        response = self._model.generate_content(
+        # Generate response for photography ideas
+        response = self._model2.generate_content(
             [
-                {
-                    "text": "Can you give me a four photography ideas? Make each idea a sentence of what I should shoot and/or how I should shoot something."
-                }
+                "Can you give me a four unique photography ideas? Make each idea a sentence of what I should shoot and/or how I should shoot something."
+                "Provide the response in JSON with keys as a number per sentence, starting at 1"
             ]
         )
-        print(response.text)
-        response_text = response.text.strip()
-        return response_text
+        result = response.text.strip()
+        if result.startswith("```json") and result.endswith("```"):
+            result = result[7:-3].strip()
+        # Parse the response text into a dictionary
+        try:
+            # Parse returned JSON string into dictionary
+            result_dict = json.loads(result)
+            result_dict["critique_date"] = datetime.datetime.now()
+            return result_dict
+        except json.JSONDecodeError:
+            # Handle cases where the response is not valid JSON (fallback)
+            print("Error parsing the JSON response.")
+            return None
+
+    def critique_photo(self, file_path, theme):
+        """
+        Provide critique on the composition of a photo.
+
+        :param file_path: Path to the photo to critique
+        :type file_path: str
+        :param theme: Theme/photo idea of the picture
+        :type theme: str
+
+        :return: Critique as a dictionary containing positive feedback and areas of improvement
+        :rtype: dict
+        """
+        if not file_path:
+            return ValueError("The file_path parameter cannot be empty.")
+
+        print(file_path)
+        uploaded_file = self.upload_file(file_path)
+        try:
+            if theme:
+                print("Generating critique...")
+                response = self._model.generate_content(
+                    [
+                        uploaded_file,
+                        "\n\n",
+                        "Can you critique the composition of this photo? Lighting, story, etc?"
+                        "Provide the response in JSON format with keys 'positive', 'negative', and 'overview'.",
+                    ]
+                )
+            else:
+                print("Generating critique...")
+                response = self._model.generate_content(
+                    [
+                        uploaded_file,
+                        "\n\n",
+                        f"The theme that the image is based off of is: \n{theme}\n"
+                        "Can you critique the composition of this photo (Lighting, story, etc?), and how accurate is the photo from the theme?"
+                        "Provide the response in JSON format with keys 'positive', 'negative', and 'overview'.",
+                    ]
+                )
+            result = response.text.strip()
+            if result.startswith("```json") and result.endswith("```"):
+                result = result[7:-3].strip()
+            # Parse the response text into a dictionary
+            try:
+                # Parse returned JSON string into dictionary
+                critique = json.loads(result)
+                print("Critique parsed and formatted")
+                return critique
+            except json.JSONDecodeError:
+                # Handle cases where the response is not valid JSON (fallback)
+                print("Error parsing the JSON response.")
+                return None
+        finally:
+            # Delete file to save space after critique
+            uploaded_file.delete()
+            print(f"Deleted file: {uploaded_file.name}")
 
     def upload_file(self, file_path):
         """
@@ -58,39 +128,41 @@ class Gemini:
         :param file_path: Path to the file to upload
         :type file_path: str
         :return: Uploaded file object
-        :rtype: genai.File
+        :rtype: File
         """
         myfile = genai.upload_file(file_path)
         print(f"Uploaded file: {myfile.name}")
         return myfile
 
-    def critique_photo(self, file_path):
+    def delete_file(self, filename):
         """
-        Provide critique on the composition of a photo.
+        Delete file stored in the Gemini AI
 
-        :param file_path: Path to the photo to critique
-        :type file_path: str
-        :return: Critique as a dictionary containing positive and negative feedback
-        :rtype: dict
+        :param file: file name stored in gemini
+        :type file: string
+
+        :return: Boolean representing if file is deleted or not
+        :rtype: boolean
         """
-        # myfile = genai.upload_file("_DSC3940.JPG")
-        uploaded_file = self.upload_file(file_path)
+        if not filename:
+            raise ValueError("Name of file cannot be empty")
+
         try:
-            result = self._model.generate_content(
-                [
-                    uploaded_file,
-                    "\n\n",
-                    "Can you critique the composition of this photo? Lighting, story, etc? Give me a positive and a negative.",
-                ]
-            )
-            return result.text.strip()
-        finally:
-            # Delete file to save space after critique
-            # uploaded_file.delete()
-            print(f"Deleted file: {uploaded_file.name}")
+            my_file = genai.get_file(filename)
+        except:
+            print(f"Error finding file in Gemini")
+            return False
+
+        try:
+            my_file.delete()
+            return True
+        except:
+            print(f"Error deleting file in Gemini")
+            return False
 
     def list_uploaded_files(self):
-        pass
+        files = genai.list_files()
+        return [f.name for f in files]
 
 
 def main():
@@ -105,9 +177,11 @@ def main():
 
     while True:
         print("\n=== Gemini Test Menu ===")
-        print("1. Generate Photography Theme")
+        print("1. Generate Photography themes: ")
         print("2. Upload and Critique Photo")
-        print("3. Exit")
+        print("3. Gemini Files")
+        print("4. Delete File")
+        print("x. Exit")
         choice = input("Enter your choice (1-3): ").strip()
 
         if choice == "1":
@@ -132,6 +206,14 @@ def main():
                 print(f"Error critiquing photo: {e}")
 
         elif choice == "3":
+            geminiFiles = gemini.list_uploaded_files()
+            print(geminiFiles)
+
+        elif choice == "4":
+            filename = input("Enter filename you wanted to delete")
+            print(gemini.delete_file(filename))
+
+        elif choice == "x":
             print("Exiting...")
             break
 
@@ -141,26 +223,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# def critique_image(image_path):
-#     with open(image_path, "rb") as image_file:
-#         content = image_file.read()
-#     image = vision.Image(content=content)
-
-#     # Perform label detection to get image composition features
-#     response = vision_client.label_detection(image=image)
-#     labels = [label.description for label in response.label_annotations]
-#     print("Image Composition Features:", labels)
-
-#     # Step 2: Formulate a prompt for Gemini using these labels
-#     prompt_text = (
-#         f"I have an image with the following elements: {', '.join(labels)}. "
-#         "Can you critique its composition and suggest any improvements?"
-#     )
-
-#     # Step 3: Send the prompt to Gemini for critique
-#     model = genai.GenerativeModel("gemini-1.5-flash")
-#     response = model.generate_content([{"text": prompt_text}])
-
-#     # Display the critique
-#     print("Gemini Critique:", response.text)
