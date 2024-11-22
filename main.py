@@ -1,13 +1,12 @@
 import tkinter as tk
 import datetime
 import threading
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, messagebox, Scrollbar, ttk
 from PIL import Image, ImageTk
 
-
 # Custom Modules
-from dbfuncs import MongoDBHandler
-from gemini import Gemini
+from modules.dbfuncs import MongoDBHandler
+from modules.gemini import Gemini
 
 
 class ImageCritiqueApp:
@@ -90,21 +89,25 @@ class ImageCritiqueApp:
         )
         self.id_label.pack(pady=10)
 
-        # # Entry field for file ID
-        # self.file_id_entry = tk.Entry(self.view_tab, font=("Helvetica", 12), width=30)
-        # self.file_id_entry.pack(pady=10)
-
-        # # View Button
-        # self.view_button = tk.Button(
-        #     self.view_tab, text="View", command=self.view_file, font=("Helvetica", 12)
-        # )
-        # self.view_button.pack(pady=10)
-
         # Listbox (for all images)
         self.image_listbox = tk.Listbox(
             self.view_tab, font=("Helvetica", 12), height=10, width=50
         )
-        self.image_listbox.pack(pady=10)
+        # self.image_listbox.pack(pady=10)
+        self.image_listbox.pack(
+            pady=10, padx=10, side=tk.LEFT, fill=tk.BOTH, expand=True
+        )
+
+        # Scrollbar for the Listbox
+        scrollbarLB = Scrollbar(self.image_listbox)
+        scrollbarLB.pack(side="right", fill="both")
+        self.image_listbox.config(yscrollcommand=scrollbarLB.set)
+        scrollbarLB.config(command=self.image_listbox.yview)
+
+        # ? Scrollbar for tab
+        scrollbar = Scrollbar(self.view_tab)
+        # scrollbar.pack(side="right", fill="both")
+        # self.view_tab.config(yscrollcommand=scrollbar.set)
 
         # Button to load the selected image and critique
         self.load_button = tk.Button(
@@ -121,7 +124,7 @@ class ImageCritiqueApp:
 
         # Display Area for the selected image's critique
         self.view_critique_text = tk.Text(
-            self.view_tab, wrap=tk.WORD, height=10, width=60
+            self.view_tab, wrap=tk.WORD, height=20, width=60
         )
         self.view_critique_text.pack(pady=20)
         self.view_critique_text.insert(tk.END, "Critique will appear here...")
@@ -140,6 +143,7 @@ class ImageCritiqueApp:
         if selected_tab == 0:  # Upload & Critique Tab
             print("Upload & Critique Tab Active")
         elif selected_tab == 1:  # View Critique Tab
+            self.load_images_into_listbox()  # Reload images to listbox
             print("View Critique Tab Active")
         elif selected_tab == 2:  # Settings Tab
             print("Settings Tab Active")
@@ -234,9 +238,6 @@ class ImageCritiqueApp:
             )
         self.critique_text.config(state=tk.DISABLED)
 
-    def view_tab(self):
-        pass
-
     def load_images_into_listbox(self):
         try:
             # Fetch images from db
@@ -247,7 +248,7 @@ class ImageCritiqueApp:
 
             # Populate Listbox
             for image in images:
-                imageid = image["filename"]
+                filename = image["filename"]
                 uploadDate = image["uploadDate"]
 
                 if isinstance(uploadDate, str):
@@ -256,10 +257,11 @@ class ImageCritiqueApp:
                 # Format the timestamp as a string (e.g., "2024-11-21 10:30:00")
                 uploadDate = uploadDate.strftime("%Y-%m-%d %H:%M:%S")
 
-                list_item = f"{imageid} - Uploaded: {uploadDate}"
+                list_item = f"{filename} - Uploaded: {uploadDate}"
                 self.image_listbox.insert(tk.END, list_item)
 
-            self.all_images = {image["_id"]: image for image in images}
+            self.all_images = {image["filename"]: image for image in images}
+            print("all images", self.all_images)
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load images: {e}")
@@ -272,16 +274,48 @@ class ImageCritiqueApp:
                 messagebox.showerror("Error", "No image selected.")
                 return
 
-            file_id = self.image_listbox.get(selection[0])
+            selection_title = self.image_listbox.get(selection[0])
+            filename = selection_title.split("-")[0].strip()
+
+            image_data = self.dbfuncs.getImageByFilename(filename)
 
             # Retrieve image data
+            # image_data = self.all_images[filename]
+            print(image_data)
+            image_path = image_data["file_path"]
+            print(image_path)
+            critique = image_data["metadata"]["critique"]
+            print(critique)
 
             # Display image
+            self.display_image_view_tab(image_path)
 
             # Display Critique
+            self.view_critique_text.config(state=tk.NORMAL)
+            self.view_critique_text.delete("1.0", tk.END)
+            formatted_critique = (
+                f"Positive:\n- " + "\n- ".join(critique["positive"]) + "\n\n"
+                f"Areas of Improvement:\n- "
+                + "\n- ".join(critique["improvement"])
+                + "\n\n"
+                f"Overview:\n{critique['overview']}"
+            )
+            self.view_critique_text.insert(tk.END, formatted_critique)
+            self.view_critique_text.config(state=tk.DISABLED)
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to laod image and critique: {e}")
+            messagebox.showerror("Error", f"Failed to load image and critique: {e}")
+
+    def display_image_view_tab(self, image_path):
+        try:
+            image = Image.open(image_path)
+            image.thumbnail((400, 300))  # Resize to fit the label
+            photo = ImageTk.PhotoImage(image)
+
+            self.view_image_label.config(image=photo)
+            self.view_image_label.image = photo
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not load image {e}")
 
 
 def configure_Gemini():

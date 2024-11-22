@@ -138,15 +138,13 @@ class MongoDBHandler:
         filename = filename.strip()
 
         # Find image within the collection
+        fileCollection = self.database["fs.files"]
         try:
             # Find file by original filename
-            file = self.fs.find_one({"file_path": filename})
-            if not file:
-                # Fine file by gemini filename
-                file = self.fs.find_one({"metadata.geminiFilename": filename})
+            file = fileCollection.find_one({"filename": filename})
             if file:
                 # Return image if file is found
-                return file.read()
+                return file
             else:
                 print(f"No file found with filename {filename}")
                 return None
