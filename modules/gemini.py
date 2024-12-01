@@ -22,6 +22,7 @@ class Gemini:
         """
         self._env_file = env_file
         self._model = None
+        self._model2 = None
 
     def configure_api(self):
         """
@@ -44,12 +45,16 @@ class Gemini:
         :rtype: dict
         """
         # Generate response for photography ideas
-        response = self._model2.generate_content(
-            [
-                "Can you give me a four unique photography ideas? Make each idea a sentence of what I should shoot and/or how I should shoot something."
-                "Provide the response in JSON with keys as a number per sentence, starting at 1"
-            ]
-        )
+        prompt = [
+            "Can you give me a four unique photography ideas? Make each idea a sentence of what I should shoot and/or how I should shoot something."
+            "Provide the response in JSON with keys as the theme title."
+        ]
+        response = self._model2.generate_content(prompt)
+
+        # Log the number of tokens used
+        print(self._model2.count_tokens(prompt))
+
+        # Strip response whitespace
         result = response.text.strip()
         if result.startswith("```json") and result.endswith("```"):
             result = result[7:-3].strip()
@@ -64,14 +69,16 @@ class Gemini:
             print("Error parsing the JSON response.")
             return None
 
-    def critique_photo(self, file_path, theme):
+    def critique_photo(self, file_path, theme, theme_description):
         """
         Provide critique on the composition of a photo.
 
         :param file_path: Path to the photo to critique
         :type file_path: str
         :param theme: Theme/photo idea of the picture
-        :type theme: str
+        :type theme: str | None
+        :param theme_description: More info about the theme
+        :type theme_description: str | None
 
         :return: Critique as a dictionary containing positive feedback and areas of improvement
         :rtype: dict
@@ -80,9 +87,10 @@ class Gemini:
             return ValueError("The file_path parameter cannot be empty.")
 
         print(file_path)
+        print(theme)
         uploaded_file = self.upload_file(file_path)
         try:
-            if theme:
+            if not theme:
                 print("Generating critique...")
                 response = self._model.generate_content(
                     [
@@ -98,7 +106,7 @@ class Gemini:
                     [
                         uploaded_file,
                         "\n\n",
-                        f"The theme that the image is based off of is: \n{theme}\n"
+                        f"The theme that the image is based off of is: \n{theme}: {theme_description}\n",
                         "Can you critique the composition of this photo (Lighting, story, etc?), and how accurate is the photo from the theme?"
                         "Provide the response in JSON format with keys 'positive', 'negative', and 'overview'.",
                     ]

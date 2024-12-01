@@ -18,32 +18,24 @@ When designing a database for storing images, themes, and related data, it’s e
    - A **themes collection** to allow users to save and browse themes:
      - Theme name
      - Description
-     - Example images (reference image IDs or URLs)
-     - User who created it (optional)
-     - Popularity metrics (e.g., how many users saved it)
+     - ~~Example images (reference image IDs or URLs)~~
+     - ~~User who created it (optional)~~
+     - ~~Popularity metrics (e.g., how many users saved it)~~
      - Tags for easier searching
 
 3. **Critiques**
-   - Separate critiques collection (linked to images):
+   - Separate critiques **sub-collection** (linked to images):
      - File ID (from GridFS)
-     - Positive and negative feedback
-     - Ratings (e.g., 1–10 or stars)
+     - Feedback --> positive, areaImprovement, overview
+     - ~~Ratings (e.g., 1–10 or stars)~~
      - Critique date
-     - User who critiqued it
 
-4. **Users**
+4. **Users** *(optional)*
    - Store user information for personalization and tracking:
      - Username, email, and password hash
      - List of saved themes (theme IDs)
      - Uploaded images (file IDs)
      - Critiques submitted (critique IDs)
-
-5. **Saved Data**
-   - Allow users to save **themes**, **images**, or **critiques** for future reference:
-     - Saved items collection:
-       - User ID
-       - Item type (e.g., theme, image, critique)
-       - Item ID (reference to the related entity)
 
 ---
 
