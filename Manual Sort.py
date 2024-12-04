@@ -1,11 +1,17 @@
 #%%
 # I'm currently working on putting the functionality in a class
 
+# 1,2,3 for keep, dicard, maybe
+# arrow key shortcuts for displaying the next or previous picture
+
 import tkinter as tk
 # from tkinter import *
 from PIL import ImageTk, Image
 import os
 from shutil import copy2 # copy2 preserves more metadata
+
+# path to folder with pics to be sorted
+folder_path = 'Screenshots'
 
 def updatePic(currImageIndex):
     global current_img
@@ -38,16 +44,16 @@ picturesList = []
 
 #Here is the variable where the reference will be stored
 current_img = None
-for pictures in os.listdir('Screenshots'):
-    if pictures.startswith('Screenshot'):
-        picturesList.append('Screenshots/'+pictures)
+for pic in os.listdir(folder_path):
+    if pic[-3:] in ['png','jpg','jpeg']: # endswith('png'):
+        picturesList.append(folder_path+'/'+pic)
 
-currImageIndex = 160
+currImageIndex = 0
 
 root = tk.Tk()
 root.resizable(width=True, height=True)
 
-img = ImageTk.PhotoImage(Image.open("Screenshots/Screenshot (336).png").resize((500,500)))
+img = ImageTk.PhotoImage(Image.open(picturesList[currImageIndex]).resize((500,500)))
 imgLabel = tk.Label(image=img)
 imgLabel.grid(row=1,column=1)
 
@@ -76,7 +82,6 @@ root.bind('<Right>', moveForward)
 #------------
 # keep, discard, maybe - functions
 
-# picDict haha
 sortDict = dict.fromkeys(picturesList)
 
 # keepList = []
@@ -134,22 +139,22 @@ root.mainloop()
 # execute keep, dicard, maybe
 
 # create folders
-if not os.path.exists('Screenshots/Keep'):
-    os.mkdir('Screenshots/Keep')
-if not os.path.exists('Screenshots/Discard'):
-    os.mkdir('Screenshots/Discard')
-if not os.path.exists('Screenshots/Maybe'):
-    os.mkdir('Screenshots/Maybe')
+if not os.path.exists(folder_path+'/Keep'):
+    os.mkdir(folder_path+'/Keep')
+if not os.path.exists(folder_path+'/Discard'):
+    os.mkdir(folder_path+'/Discard')
+if not os.path.exists(folder_path+'/Maybe'):
+    os.mkdir(folder_path+'/Maybe')
 
 # execute
 for pic in sortDict:
     if sortDict[pic] == 'Keep':
-        copy2(pic,'Screenshots/Keep')
+        copy2(pic, folder_path+'/Keep')
     elif sortDict[pic] == 'Discard':
-        copy2(pic,'Screenshots/Discard')
+        copy2(pic, folder_path+'/Discard')
         # os.remove()
     elif sortDict[pic] == 'Maybe':
-        copy2(pic,'Screenshots/Maybe')
+        copy2(pic, folder_path+'/Maybe')
 
 # for pic in keepList:
 #     copy2(pic,'Screenshots/Keep')
