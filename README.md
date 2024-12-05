@@ -13,3 +13,5 @@ Packages:
     pillow?
     pymongo
     base64
+    pytest
+    pytest-mock

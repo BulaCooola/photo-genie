@@ -1,10 +1,10 @@
 import pymongo
-from pymongo import MongoClient
-from bson import Binary
 import base64
 import gridfs
 import datetime
 import os
+from io import BytesIO
+from pymongo import MongoClient
 
 
 class MongoDBHandler:
@@ -50,40 +50,6 @@ class MongoDBHandler:
         """
         return self.database.list_collection_names()
 
-    def encode_image(self, image):
-        """
-        Encodes an image from binary to Base64 string
-
-        :param image: image name
-        :type image: image
-
-        :return: encoded image
-        :type: base64
-        """
-        # Read the image file and encode it to Base64
-        with open(image, "rb") as image_file:
-            base64_image = base64.b64encode(image_file.read()).decode("utf-8")
-
-        return base64_image
-
-    def decode_image(self, image):
-        """
-        Decodes an image from Base64 to binary
-
-        :param image: image name
-        :type image: image
-
-        :return: decoded image
-        :type: binary
-        """
-        binary_image = base64.b64decode(image)
-
-        # Save the image to a file
-        with open("retrieved_example.jpg", "wb") as output_file:
-            output_file.write(binary_image)
-
-        return output_file
-
     def add_image(self, image_path):
         file = self.fs.find_one({"file_path": image_path})
 
@@ -116,9 +82,16 @@ class MongoDBHandler:
         )
 
     def getImageByFileID(self, file_id):
+        # Initilalize variable for collection
+        fileCollection = self.database["fs.files"]
+        # Find in the collection
+        file = fileCollection.find_one({"_id": file_id})
+        if not file:
+            raise FileNotFoundError("File does not exist in the database")
+
         stored_file = self.fs.get(file_id)  # Get the file by its ID
-        with open("output_image.jpg", "wb") as output_file:
-            output_file.write(stored_file.read())
+        image_data = BytesIO(stored_file.read())  # Create in-memory file
+        return image_data
 
     def getImageByFilename(self, filename):
         """
@@ -127,8 +100,8 @@ class MongoDBHandler:
         :param filename: Filename or Gemini Filename
         :type filename: string
 
-        :return: image
-        :rtype: image
+        :return: image metadata
+        :rtype: Any | None
         """
         # Validate if filename exists
         if not filename:
@@ -138,15 +111,13 @@ class MongoDBHandler:
         filename = filename.strip()
 
         # Find image within the collection
+        fileCollection = self.database["fs.files"]
         try:
             # Find file by original filename
-            file = self.fs.find_one({"file_path": filename})
-            if not file:
-                # Fine file by gemini filename
-                file = self.fs.find_one({"metadata.geminiFilename": filename})
+            file = fileCollection.find_one({"filename": filename})
             if file:
                 # Return image if file is found
-                return file.read()
+                return file
             else:
                 print(f"No file found with filename {filename}")
                 return None
@@ -197,13 +168,53 @@ class MongoDBHandler:
         try:
             # insert theme into themes collection
             result = self.themesCollection.insert_one(theme_data)
-            return (
-                f"Theme '{theme_name}' added successfully with ID: {result.inserted_id}"
-            )
+            # return (
+            #     f"Theme '{theme_name}' added successfully with ID: {result.inserted_id}"
+            # )
+            return result.inserted_id
         except Exception as e:
-            return f"Error adding theme: {e}"
+            raise Exception(f"Error adding theme: {e}")
 
-    def add_critique(self, file_id, critique):
+    def getAllThemes(self):
+        """
+        Gives a list of objects containing theme data (id, theme_name, theme_description)
+
+        :return: List of objects containing theme data
+        :rtype: list | None
+        """
+        themeCollection = self.themesCollection
+        return list(
+            themeCollection.find({}, {"_id": 1, "theme_name": 1, "description": 1})
+        )
+
+    def getThemeById(self, theme_id):
+        """
+        Finds a specified theme by ID
+
+        :param theme_id: object id for the theme
+        :type theme_id: string
+
+        :return: theme data
+        :rtype: object
+        """
+        if not theme_id:
+            raise ValueError("Theme ID must be provided.")
+        themeCollection = self.themesCollection
+
+        try:
+            # Find file by original filename
+            file = themeCollection.find_one({"_id": theme_id})
+            if file:
+                # Return image if file is found
+                return file
+            else:
+                print(f"No file found with theme id {theme_id}")
+                return None
+        except Exception as e:
+            print(f"Error retrieving image: {e}")
+            return None
+
+    def add_critique(self, file_id, critique, theme_id=None):
         """
         Add the critique to the database with the associated image
 
@@ -211,6 +222,8 @@ class MongoDBHandler:
         :type file_id: string
         :param critique: critique generated from Gemini AI
         :type critique: dict
+        :param theme_id: theme id critique is based off
+        :type theme_id: string | None
 
         :return: Result of insert_one function to fs.files
         :rtype: InsertOneResult
@@ -240,6 +253,7 @@ class MongoDBHandler:
                         "metadata.critique.positive": critique["positive"],
                         "metadata.critique.improvement": critique["negative"],
                         "metadata.critique.overview": critique["overview"],
+                        "metadata.theme_id": theme_id,
                     }
                 },
             )
@@ -272,12 +286,10 @@ if __name__ == "__main__":
     while True:
         print("\n=== Image Functions Test Menu ===")
         print("1. Store image")
-        print("2. Encode Image")
-        print("3. Decode Image")
-        print("4. Store Image with GridFS")
-        print("5. Retrieve Image with GridFS")
-        print("6. Add theme")
-        print("7. Get all images")
+        print("2. Store Image with GridFS")
+        print("3. Retrieve Image with GridFS")
+        print("4. Add theme")
+        print("5. Get all images and themes")
         print("x. Exit")
         choice = input("Enter your choice: ").strip()
 
@@ -295,37 +307,27 @@ if __name__ == "__main__":
                 encoded_image = db_handler.encode_image("_DSC3940.JPG")
             except Exception as e:
                 print(f"Error encoding image: {e}")
-        elif choice == "3":
-            try:
-                decoded_image = db_handler.decode_image(encoded_image)
-                print(decoded_image)
-            except Exception as e:
-                pass
 
-        elif choice == "4":
-            try:
-                img = input("Enter filename: ")
-                file_id = db_handler.add_image(img, "file/iamtestingthis")
-            except Exception as e:
-                print(f"Error storing image: {e}")
-
-        elif choice == "5":
+        elif choice == "53":
             try:
                 file_id = db_handler.retreive_image(file_id)
             except Exception as e:
                 print(f"Error storing image: {e}")
 
-        elif choice == "6":
+        elif choice == "4":
             try:
                 addedTheme = db_handler.add_theme("Test theme", "test description")
                 print(addedTheme)
             except Exception as e:
                 print(f"Error adding theme: {e}")
 
-        elif choice == "7":
+        elif choice == "5":
             try:
                 allImages = db_handler.getAllImages()
+                allThemes = db_handler.getAllThemes()
                 print(allImages)
+                print()
+                print(allThemes)
             except Exception as e:
                 print(f"Error fetching all images: {e}")
         elif choice == "x":
