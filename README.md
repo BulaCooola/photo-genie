@@ -10,8 +10,7 @@ Packages:
     google.generativeai
     tkinter
     python-dotenv
-    pillow?
+    pillow
     pymongo
-    base64
     pytest
-    pytest-mock
+    opencv-python

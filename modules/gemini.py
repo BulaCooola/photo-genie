@@ -2,7 +2,6 @@
 # Description: Test for Gemini file
 
 import google.generativeai as genai
-from google.cloud import vision
 import os
 import json
 import datetime
@@ -86,12 +85,12 @@ class Gemini:
         if not file_path:
             return ValueError("The file_path parameter cannot be empty.")
 
-        print(file_path)
-        print(theme)
+        print("Filepath: ", file_path)
+        print("Theme: ", theme)
         uploaded_file = self.upload_file(file_path)
         try:
             if not theme:
-                print("Generating critique...")
+                print("\nGenerating critique...\n")
                 response = self._model.generate_content(
                     [
                         uploaded_file,
@@ -101,7 +100,7 @@ class Gemini:
                     ]
                 )
             else:
-                print("Generating critique...")
+                print("\nGenerating critique...\n")
                 response = self._model.generate_content(
                     [
                         uploaded_file,
@@ -171,63 +170,3 @@ class Gemini:
     def list_uploaded_files(self):
         files = genai.list_files()
         return [f.name for f in files]
-
-
-def main():
-    gemini = Gemini()
-
-    # Configure the API
-    try:
-        gemini.configure_api()
-    except ValueError as e:
-        print(f"Error: {e}")
-        return
-
-    while True:
-        print("\n=== Gemini Test Menu ===")
-        print("1. Generate Photography themes: ")
-        print("2. Upload and Critique Photo")
-        print("3. Gemini Files")
-        print("4. Delete File")
-        print("x. Exit")
-        choice = input("Enter your choice (1-3): ").strip()
-
-        if choice == "1":
-            # Test generate_theme
-            try:
-                theme = gemini.generate_theme()
-                print(f"Generated Photography Theme: {theme}")
-            except Exception as e:
-                print(f"Error generating theme: {e}")
-
-        elif choice == "2":
-            # Test critique_photo
-            file_path = input("Enter the path to the photo file: ").strip()
-            if not os.path.exists(file_path):
-                print("Error: File does not exist. Please try again.")
-                continue
-
-            try:
-                critique = gemini.critique_photo(file_path)
-                print(f"Photo Critique: {critique}")
-            except Exception as e:
-                print(f"Error critiquing photo: {e}")
-
-        elif choice == "3":
-            geminiFiles = gemini.list_uploaded_files()
-            print(geminiFiles)
-
-        elif choice == "4":
-            filename = input("Enter filename you wanted to delete")
-            print(gemini.delete_file(filename))
-
-        elif choice == "x":
-            print("Exiting...")
-            break
-
-        else:
-            print("Invalid choice. Please enter a valid option.")
-
-
-if __name__ == "__main__":
-    main()

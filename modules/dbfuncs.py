@@ -1,5 +1,4 @@
 import pymongo
-import base64
 import gridfs
 import datetime
 import os
@@ -271,71 +270,3 @@ class MongoDBHandler:
         """
         self.client.close()
         print("MongoDB connection closed.")
-
-
-# FOR TESTING PURPOSES (DELETE AFTER)
-if __name__ == "__main__":
-    # Initialize the MongoDBHandler
-    db_handler = MongoDBHandler()
-
-    # # # Drop the database
-    # db_name = "my_database"
-    # db_handler.client.drop_database(db_name)
-    # print(f"Database '{db_name}' has been deleted.")
-
-    while True:
-        print("\n=== Image Functions Test Menu ===")
-        print("1. Store image")
-        print("2. Store Image with GridFS")
-        print("3. Retrieve Image with GridFS")
-        print("4. Add theme")
-        print("5. Get all images and themes")
-        print("x. Exit")
-        choice = input("Enter your choice: ").strip()
-
-        if choice == "1":
-            try:
-                stored_image = db_handler.add_critique(
-                    "_DSC3940.JPG",
-                    "This is the test critique",
-                    "This is the test theme",
-                )
-            except Exception as e:
-                print(f"Error storing image: {e}")
-        elif choice == "2":
-            try:
-                encoded_image = db_handler.encode_image("_DSC3940.JPG")
-            except Exception as e:
-                print(f"Error encoding image: {e}")
-
-        elif choice == "53":
-            try:
-                file_id = db_handler.retreive_image(file_id)
-            except Exception as e:
-                print(f"Error storing image: {e}")
-
-        elif choice == "4":
-            try:
-                addedTheme = db_handler.add_theme("Test theme", "test description")
-                print(addedTheme)
-            except Exception as e:
-                print(f"Error adding theme: {e}")
-
-        elif choice == "5":
-            try:
-                allImages = db_handler.getAllImages()
-                allThemes = db_handler.getAllThemes()
-                print(allImages)
-                print()
-                print(allThemes)
-            except Exception as e:
-                print(f"Error fetching all images: {e}")
-        elif choice == "x":
-            print("Exiting...")
-            break
-
-        else:
-            print("Invalid choice. Please enter a valid option.")
-
-    # Close the connection
-    db_handler.close_connection()
