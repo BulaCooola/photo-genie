@@ -49,14 +49,15 @@ def sharpness_test_gradient(image_path):
 
 # image_path = "blur 2.jpg"
 image_path = "_DSC3940.JPG"
+image_path2 = "imgs/test_image2.jpg"
 image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 laplacian_var = cv2.Laplacian(image, cv2.CV_64F).var()
 
 print(laplacian_var)
 
-imshow(image)
+# imshow(image)
 
 ######
 # Test the function
-sharpness_score_gradient = sharpness_test_gradient(image_path)
+sharpness_score_gradient = sharpness_test_gradient(image_path2)
 print(f"Sharpness score (Gradient Magnitude): {sharpness_score_gradient}")

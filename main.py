@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, Scrollbar, ttk
+from tkinter import ttk
 
 # Custom Modules
 from modules.dbfuncs import MongoDBHandler
@@ -7,7 +7,7 @@ from modules.gemini import Gemini
 from modules.GenerateCritiqueTab import GenerateCritiqueTab
 from modules.ViewCritiquesTab import ViewCritiquesTab
 from modules.ThemesTab import ThemesTab
-from ManualSort import ManualSortApp
+from modules.ManualSortTab import ManualSortTab
 
 
 class ImageCritiqueApp:
@@ -34,7 +34,7 @@ class ImageCritiqueApp:
         )
         self.view_tab = ViewCritiquesTab(self.notebook, self.dbfuncs)
         self.theme_tab = ThemesTab(self.notebook, self.gemini, self.dbfuncs)
-        self.sort_tab = ManualSortApp(self.notebook)
+        self.sort_tab = ManualSortTab(self.notebook)
 
         # Adding our tabs to the notebook
         self.notebook.add(self.generate_critique_tab.frame, text="Upload and Critique")
@@ -45,8 +45,7 @@ class ImageCritiqueApp:
         # Log and detect tab changes
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
 
-    # TABS
-
+    # TABS changes
     def on_tab_change(self, event):
         """
         Logs tab changes on the terminal
