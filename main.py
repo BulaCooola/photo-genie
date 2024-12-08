@@ -40,7 +40,7 @@ class ImageCritiqueApp:
         self.notebook.add(self.generate_critique_tab.frame, text="Upload and Critique")
         self.notebook.add(self.view_tab.frame, text="View Image and Critique")
         self.notebook.add(self.theme_tab.frame, text="Generate Theme")
-        self.notebook.add(self.sort_tab.frame, text="Sort and Cull Photos")
+        self.notebook.add(self.sort_tab.frame, text="Manual Sort and Cull Photos")
 
         # Log and detect tab changes
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
@@ -62,8 +62,10 @@ class ImageCritiqueApp:
         elif selected_tab == 1:  # View Critique Tab
             self.view_tab.load_images_into_listbox()  # Reload images to listbox
             print("View Critique Tab Active")
-        elif selected_tab == 2:  # Settings Tab
+        elif selected_tab == 2:  # Theme Tab
             print("Generate Theme Tab Active")
+        elif selected_tab == 3:  # Manual Sort Tab
+            print("Manual Sort Tab Active")
 
 
 def configure_Gemini():
