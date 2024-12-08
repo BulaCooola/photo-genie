@@ -89,13 +89,13 @@ class ViewCritiquesTab:
                 filename = image["filename"]
                 uploadDate = image["uploadDate"]
 
+                # Date formatting
                 if isinstance(uploadDate, str):
                     uploadDate = datetime.fromisoformat(uploadDate)
-
                 # Format the timestamp as a string (e.g., "2024-11-21 10:30:00")
                 uploadDate = uploadDate.strftime("%Y-%m-%d %H:%M:%S")
 
-                list_item = f"{filename} - Uploaded: {uploadDate}"
+                list_item = f"{filename} - \t \t \t \t \t \t Uploaded: {uploadDate}"
                 self.image_listbox.insert(tk.END, list_item)
 
             self.all_images = {image["filename"]: image for image in images}
