@@ -1,3 +1,8 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: The main program that runs Photo Genie. This program initializes a tkinter application and configures necessary backend modules.
+
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -52,9 +57,6 @@ class ImageCritiqueApp:
         """
         # Get the currently selected tab
         selected_tab = self.notebook.index(self.notebook.select())
-
-        # Debugging: Print the selected tab
-        print(f"Selected tab index: {selected_tab}")
 
         # Perform actions based on the selected tab
         if selected_tab == 0:  # Upload & Critique Tab
