@@ -33,6 +33,7 @@ class ManualSortTab:
         self.frame = tk.Frame(notebook)
         self.folder_path = None
         self.current_img = None
+        self.no_picture_label = None
         self.picturesList = []
         self.sortDict = {}
         self.currImageIndex = 0
@@ -65,6 +66,10 @@ class ManualSortTab:
         """
         By Branden. Helper function for select button for the user to select a folder
         """
+        # Handle no_picture_label if that had been triggered
+        if self.no_picture_label:
+            self.no_picture_label.grid_forget()
+
         # If a different folder is loaded already
         if self.folder_path:
             # Reset initialized variables
@@ -75,6 +80,7 @@ class ManualSortTab:
 
             self.folder_path = filedialog.askdirectory()
             self.select_button.grid_forget()
+            self.canvas.grid_forget()
             self.init_vars()
             # which will display an image for the first time\
         # If no folders are loaded yet
@@ -89,39 +95,61 @@ class ManualSortTab:
         """
         Initialize some new member variables for the images. Loads images as well.
         """
-        for filename in os.listdir(self.folder_path):
-            if filename.lower().endswith(("png", "jpg", "jpeg", "bmp")):
-                image_path = os.path.join(self.folder_path, filename)
-                self.picturesList.append(image_path)
+        try:
+            for filename in os.listdir(self.folder_path):
+                if filename.lower().endswith(("png", "jpg", "jpeg", "bmp")):
+                    image_path = os.path.join(self.folder_path, filename)
+                    self.picturesList.append(image_path)
 
-        # Record last index
-        self.lastIndex = len(self.picturesList) - 1
+            if len(self.picturesList) == 0:
+                self.no_picture_label = tk.Label(
+                    self.frame,
+                    text="There are no pictures in this folder. Pick another folder.",
+                    font=("Helvetica", 12),
+                )
+                self.no_picture_label.grid(row=2, column=1)
 
-        # Create a scrollable canvas
-        self.canvas = tk.Canvas(self.frame, width=WIDTH, height=HEIGHT)
-        self.canvas.grid(row=1, column=1, pady=10)
+                # select folder
+                self.select_button = tk.Button(
+                    self.frame,
+                    text="Select Folder",
+                    command=self.select_folder,
+                    font=("Helvetica", 12),
+                )
+                self.select_button.grid(row=3, column=1, pady=10)
+            else:
+                # Record last index
+                self.lastIndex = len(self.picturesList) - 1
 
-        # Load Image (one for analyze dimensions, one for loading to GUI)
-        fullImg = Image.open(self.picturesList[self.currImageIndex])
-        resizedImg = self.resize_image(fullImg, WIDTH, HEIGHT)  # Resize image
-        tkImg = ImageTk.PhotoImage(resizedImg)
+                # Create a scrollable canvas
+                self.canvas = tk.Canvas(self.frame, width=WIDTH, height=HEIGHT)
+                self.canvas.grid(row=1, column=1, pady=10)
 
-        # Add the image to the canvas
-        self.canvas.create_image(0, 0, anchor=tk.CENTER, image=tkImg)
-        self.canvas.image = tkImg
+                # Load Image (one for analyze dimensions, one for loading to GUI)
+                fullImg = Image.open(self.picturesList[self.currImageIndex])
+                resizedImg = self.resize_image(fullImg, WIDTH, HEIGHT)  # Resize image
+                tkImg = ImageTk.PhotoImage(resizedImg)
 
-        # select folder
-        self.select_button = tk.Button(
-            self.frame,
-            text="Select Folder",
-            command=self.select_folder,
-            font=("Helvetica", 12),
-        )
-        self.select_button.grid(row=0, column=2, pady=10)
+                # Add the image to the canvas
+                self.canvas.create_image(0, 0, anchor=tk.CENTER, image=tkImg)
+                self.canvas.image = tkImg
 
-        self.init_navigation()
-        self.init_sort_buttons()
-        self.init_finish_button()
+                # select folder
+                self.select_button = tk.Button(
+                    self.frame,
+                    text="Select Folder",
+                    command=self.select_folder,
+                    font=("Helvetica", 12),
+                )
+                self.select_button.grid(row=0, column=2, pady=10)
+
+                self.init_navigation()
+                self.init_sort_buttons()
+                self.init_finish_button()
+        except FileNotFoundError as e:
+            messagebox.showerror(
+                "Error", "Server Error. System cannot find the path specified"
+            )
 
     def updatePic(self, index):
         """

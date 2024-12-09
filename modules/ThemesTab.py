@@ -1,6 +1,7 @@
 # Authors: Branden Bulatao, Matthew Kribs
 # Date: 12/2024
-# Description:
+# Description: This module is a part of the frontend, and generates photography themes to challenge users. It also displays a
+# list of themes that the users saved.
 
 import tkinter as tk
 from tkinter import messagebox, Scrollbar, ttk

@@ -13,6 +13,7 @@ from modules.GenerateCritiqueTab import GenerateCritiqueTab
 from modules.ViewCritiquesTab import ViewCritiquesTab
 from modules.ThemesTab import ThemesTab
 from modules.ManualSortTab import ManualSortTab
+from modules.BlurSortTab import BlurSortApp
 
 
 class ImageCritiqueApp:
@@ -40,12 +41,14 @@ class ImageCritiqueApp:
         self.view_tab = ViewCritiquesTab(self.notebook, self.dbfuncs)
         self.theme_tab = ThemesTab(self.notebook, self.gemini, self.dbfuncs)
         self.sort_tab = ManualSortTab(self.notebook)
+        self.blur_tab = BlurSortApp(self.notebook)
 
         # Adding our tabs to the notebook
         self.notebook.add(self.generate_critique_tab.frame, text="Upload and Critique")
         self.notebook.add(self.view_tab.frame, text="View Image and Critique")
         self.notebook.add(self.theme_tab.frame, text="Generate Theme")
         self.notebook.add(self.sort_tab.frame, text="Manual Sort and Cull Photos")
+        self.notebook.add(self.blur_tab.root, text="Blur Sort and Cull Photos")
 
         # Log and detect tab changes
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
@@ -68,6 +71,8 @@ class ImageCritiqueApp:
             print("Generate Theme Tab Active")
         elif selected_tab == 3:  # Manual Sort Tab
             print("Manual Sort Tab Active")
+        elif selected_tab == 4:  # Blur Sort Tab
+            print("Blur Sort Tab Active")
 
 
 def configure_Gemini():
