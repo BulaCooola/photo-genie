@@ -12,6 +12,7 @@ class ThemesTab:
         self.gemini = gemini
         self.dbfuncs = dbfuncs
 
+        # Create frame with parent notebook
         self.frame = tk.Frame(notebook)
 
         # Label for Title
