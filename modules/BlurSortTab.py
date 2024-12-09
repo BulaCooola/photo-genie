@@ -22,10 +22,6 @@ class BlurSortApp:
         self.blurValues = []  # blur vals
         self.num_blurry = 0
 
-        # Title
-        self.title = tk.Label(text="Blur Sort", height=2, font=("Helvetica", 15))
-        self.title.pack()
-
         # select folder
         self.select_button = tk.Button(
             self.root,

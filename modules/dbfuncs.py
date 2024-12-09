@@ -173,6 +173,8 @@ class MongoDBHandler:
 
         :param theme: A theme that Gemini AI generated that user wants to save for future
         :type theme: string
+        :param description: Detailed description of the theme
+        :type description: string
 
         :return: Response saying the theme added successfully
         :rtype: string

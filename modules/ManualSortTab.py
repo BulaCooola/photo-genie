@@ -22,8 +22,8 @@ from shutil import copy2  # copy2 preserves more metadata
 # Branden did the same thing - "to avoid garbage collection"
 # https://stackoverflow.com/questions/57244479/how-to-display-an-image-in-tkinter-using-grid
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 600
+HEIGHT = 400
 
 
 class ManualSortTab:
@@ -127,11 +127,13 @@ class ManualSortTab:
 
                 # Load Image (one for analyze dimensions, one for loading to GUI)
                 fullImg = Image.open(self.picturesList[self.currImageIndex])
-                resizedImg = self.resize_image(fullImg, WIDTH, HEIGHT)  # Resize image
+                resizedImg = self.resize_image(
+                    fullImg, WIDTH, HEIGHT + 200
+                )  # Resize image
                 tkImg = ImageTk.PhotoImage(resizedImg)
 
                 # Add the image to the canvas
-                self.canvas.create_image(0, 0, anchor=tk.CENTER, image=tkImg)
+                self.canvas.create_image(0, 0, anchor=tk.NW, image=tkImg)
                 self.canvas.image = tkImg
 
                 # select folder
@@ -142,6 +144,14 @@ class ManualSortTab:
                     font=("Helvetica", 12),
                 )
                 self.select_button.grid(row=0, column=2, pady=10)
+
+                # Shortcuts instructions
+                self.instruction_key = tk.Label(
+                    self.frame,
+                    text="1: Keep, 2: Maybe, 3: Delete, ->: Right, <-: Left",
+                    font=("Helvetica", 12),
+                )
+                self.instruction_key.grid(row=2, column=1)
 
                 self.init_navigation()
                 self.init_sort_buttons()
@@ -161,7 +171,7 @@ class ManualSortTab:
         # print(picturesList)
         # Load Image (one for analyze dimensions, one for loading to GUI)
         fullImg = Image.open(self.picturesList[index])
-        resizedImg = self.resize_image(fullImg, WIDTH, HEIGHT)  # Resize image
+        resizedImg = self.resize_image(fullImg, WIDTH, HEIGHT + 200)  # Resize image
         tkImg = ImageTk.PhotoImage(resizedImg)
 
         # self.imgLabel.config(image=current_img)
@@ -302,7 +312,7 @@ class ManualSortTab:
         maybeButton.grid(row=3, column=1, pady=10)
         discardButton.grid(row=3, column=2, pady=10, sticky=tk.W)
 
-        f1.grid(row=2, column=1)
+        f1.grid(row=3, column=1)
         self.frame.grid_rowconfigure(2, minsize=100)
 
         # ------------
