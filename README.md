@@ -3,6 +3,7 @@ AAI/CPE/EE 551 Project 2
 
 A photography exercise module and photo sorting application that suggests themed challenges for photographers of all experiences and provides feedback on lighting, composition, technical details, and accuracy to a theme using Gemini AI endpoints. 
 
+<img src="readme_images/demo.png" width=70%>
 
 ## Instructions
 
@@ -28,8 +29,12 @@ Gemini AI in our application is used as a tool to critique photos and generate t
 Log in into Google AI for Developers through https://ai.google.dev/. Once you have been authenticated, click on the button that says 
 ```Get API key in Google AI Studio```. Then, click the ```Create API key``` and copy and paste the API key.
 
+<img src="readme_images/image.png" width=70%>
+<img src="readme_images/image-1.png" width=70%>
+
 #### 2. Setting the Key
 - In the root of the directory, create a new file named `.env`.
+![alt text](readme_images/env.png)
 - Next, in a `KEY=VALUE` format, replace *YOUR_API_KEY* with the actual API key and add the following to your `.env` file. Make sure that keys are uppercased, no spaces around `=`, and no need to put quotes around the value
 ```
 GEMINI_API_KEY=YOUR_API_KEY

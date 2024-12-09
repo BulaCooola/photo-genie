@@ -14,6 +14,7 @@ class GenerateCritiqueTab:
         self.gemini = gemini
         self.dbfuncs = dbfuncs
 
+        # Create frame with parent notebook
         self.frame = tk.Frame(notebook)
 
         # Variables for storing currnent images and critiques

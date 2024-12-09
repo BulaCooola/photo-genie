@@ -4,7 +4,7 @@
 
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 # Custom Modules
 from modules.dbfuncs import MongoDBHandler
@@ -21,11 +21,19 @@ class ImageCritiqueApp:
     def __init__(self, root, gemini, dbfuncs):
         self.root = root
         self.root.title("Photo Genie")
-        self.root.geometry("600x400")
+        # self.root.geometry("600x400")
+        self.root.state("zoomed")
 
         # Get instances of our modules
-        self.gemini = gemini
+        self.gemini = gemini  # Set as none until API is configured
         self.dbfuncs = dbfuncs
+        try:
+            configure = gemini.configure_api()
+        except ValueError as e:
+            messagebox.showerror(
+                "Error",
+                f"API not provided. Critique and Theme generators will not work properly: {e}",
+            )
 
         # Variables for storing currnent images and critiques
         self.current_image_path = None
@@ -97,12 +105,11 @@ def configure_Gemini():
 
 if __name__ == "__main__":
     root = tk.Tk()
-    gemini = configure_Gemini()
+    gemini = Gemini()
     dbfuncs = MongoDBHandler()
     app = ImageCritiqueApp(root, gemini, dbfuncs)
     style = ttk.Style()
     print(style.theme_names())  # View available themes
     style.theme_use("clam")  # Use a specific theme
-    root.state("zoomed")
     root.mainloop()
     dbfuncs.close_connection()  # Close db connection when program ends
