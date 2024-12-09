@@ -44,7 +44,7 @@ class Gemini:
         :return: The generated theme as a Python dictionary
         :rtype: dict
         """
-        # Generate response for photography ideas
+        # Generate response for photography ideas and themes
         prompt = [
             "Can you give me a four unique photography ideas? Make each idea a sentence of what I should shoot and/or how I should shoot something."
             "Provide the response in JSON with keys as the theme title."
