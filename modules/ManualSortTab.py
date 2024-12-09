@@ -213,7 +213,6 @@ class ManualSortTab:
 
     # ------------
     # keep, discard, maybe - functions
-    # picDict haha
 
     def keepPic(self, event=None):
         self.sortDict[self.picturesList[self.currImageIndex]] = "Keep"
