@@ -39,7 +39,7 @@ More Documentation on how to setup a Gemini API key:
 - https://ai.google.dev/gemini-api/docs/api-key
 
 ### Running the program
-To run the program, simply run the following line in your terminal
+To run the program, simply run one of the following lines in your terminal on the root of this directory.
 ```
 python main.py
 ```
@@ -47,3 +47,14 @@ or
 ```
 python3 main.py
 ```
+
+### RECOMMENDED: Seeding database
+To run the seed file, simply run one of the following lines in your terminal on the root of this directory.
+```
+python seed.py
+```
+or
+```
+python3 seed.py
+```
+Please run this once only, or you will get duplicate file entries. The terminal should say "Done Seeding Database" if the seed was successful. 

@@ -14,12 +14,13 @@ from modules.ViewCritiquesTab import ViewCritiquesTab
 from modules.ThemesTab import ThemesTab
 from modules.ManualSortTab import ManualSortTab
 from modules.BlurSortTab import BlurSortApp
+from modules.HomeTab import HomeTab
 
 
 class ImageCritiqueApp:
     def __init__(self, root, gemini, dbfuncs):
         self.root = root
-        self.root.title("Image Critique App")
+        self.root.title("Photo Genie")
         self.root.geometry("600x400")
 
         # Get instances of our modules
@@ -35,6 +36,7 @@ class ImageCritiqueApp:
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
         # Get Tab Modules
+        self.home_tab = HomeTab(self.notebook)
         self.generate_critique_tab = GenerateCritiqueTab(
             self.notebook, self.gemini, self.dbfuncs
         )
@@ -44,6 +46,7 @@ class ImageCritiqueApp:
         self.blur_tab = BlurSortApp(self.notebook)
 
         # Adding our tabs to the notebook
+        self.notebook.add(self.home_tab.frame, text="Home")
         self.notebook.add(self.generate_critique_tab.frame, text="Upload and Critique")
         self.notebook.add(self.view_tab.frame, text="View Image and Critique")
         self.notebook.add(self.theme_tab.frame, text="Generate Theme")
@@ -62,16 +65,18 @@ class ImageCritiqueApp:
         selected_tab = self.notebook.index(self.notebook.select())
 
         # Perform actions based on the selected tab
-        if selected_tab == 0:  # Upload & Critique Tab
+        if selected_tab == 0:  # Home Tab
+            print("Home Tab Active")
+        elif selected_tab == 1:  # Upload & Critique Tab
             print("Upload & Critique Tab Active")
-        elif selected_tab == 1:  # View Critique Tab
+        elif selected_tab == 2:  # View Critique Tab
             self.view_tab.load_images_into_listbox()  # Reload images to listbox
             print("View Critique Tab Active")
-        elif selected_tab == 2:  # Theme Tab
+        elif selected_tab == 3:  # Theme Tab
             print("Generate Theme Tab Active")
-        elif selected_tab == 3:  # Manual Sort Tab
+        elif selected_tab == 4:  # Manual Sort Tab
             print("Manual Sort Tab Active")
-        elif selected_tab == 4:  # Blur Sort Tab
+        elif selected_tab == 5:  # Blur Sort Tab
             print("Blur Sort Tab Active")
 
 
