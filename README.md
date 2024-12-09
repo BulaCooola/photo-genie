@@ -1,5 +1,5 @@
 # photo-genie
-A CPE 551 Project
+AAI/CPE/EE 551 Project 2
 
 A photography exercise module and photo sorting application that suggests themed challenges for photographers of all experiences and provides feedback on lighting, composition, technical details, and accuracy to a theme using Gemini AI endpoints. 
 
@@ -58,3 +58,5 @@ or
 python3 seed.py
 ```
 Please run this once only, or you will get duplicate file entries. The terminal should say "Done Seeding Database" if the seed was successful. 
+
+More instructions on the application :)
