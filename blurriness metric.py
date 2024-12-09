@@ -1,3 +1,7 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description:
+
 # https://pyimagesearch.com/2015/09/07/blur-detection-with-opencv/
 
 # GUI slider for threshold?

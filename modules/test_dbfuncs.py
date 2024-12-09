@@ -1,3 +1,7 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This python file is a test file that tests database functions such as adding and fetching images and themes.
+
 import pytest
 from pymongo import MongoClient
 from dbfuncs import MongoDBHandler  # Replace with the correct import

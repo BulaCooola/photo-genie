@@ -1,5 +1,6 @@
-# Authors: Branden Bulatao, Matthew Kribs, Hashil Patel
-# Description: Test for Gemini file
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This module handles all Gemini API calls. It handles any theme generations and photo critiques.
 
 import google.generativeai as genai
 import os

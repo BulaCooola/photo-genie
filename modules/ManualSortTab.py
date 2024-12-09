@@ -1,3 +1,8 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This module handles part of the frontend, and enables users to review a folder of images and sort them in order to cull through
+# photos that they want to keep or delete.
+
 # keyboard shortcuts:
 # 1,2,3 for keep, dicard, maybe
 # arrow keys for displaying the next or previous picture

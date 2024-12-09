@@ -1,3 +1,8 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This module handles part of the frontend, and handles AI-generated photo critiques, displaying the loaded image, and
+# saving the image and critique.
+
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import threading

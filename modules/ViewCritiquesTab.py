@@ -1,3 +1,8 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This modules is a part of the frontend, and allows the user to view past images and critiques that they
+# haved saved. It also allows users to view images in a full screen window.
+
 import tkinter as tk
 from tkinter import Scrollbar, messagebox, ttk
 from PIL import Image, ImageTk

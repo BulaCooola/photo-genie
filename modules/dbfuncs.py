@@ -1,3 +1,7 @@
+# Authors: Branden Bulatao, Matthew Kribs
+# Date: 12/2024
+# Description: This module uses MongoDB to store and fetch images, critiques, and themes.
+
 import pymongo
 import gridfs
 import datetime
@@ -50,6 +54,12 @@ class MongoDBHandler:
         return self.database.list_collection_names()
 
     def add_image(self, image_path):
+        """
+        Adds image into the database as well as initializing necessary metadata
+
+        :param image_path: Path to the image file
+        :type image_path: str
+        """
         file = self.fs.find_one({"file_path": image_path})
 
         if file:
@@ -75,12 +85,24 @@ class MongoDBHandler:
         return file_id
 
     def getAllImages(self):
+        """
+        Fetches all images in the database
+
+        :return: List of image objects
+        :rtype: list
+        """
         filesCollection = self.database["fs.files"]
         return list(
             filesCollection.find({}, {"_id": 1, "filename": 1, "uploadDate": 1})
         )
 
     def getImageByFileID(self, file_id):
+        """
+        Gets a single image object by ID
+
+        :param file_id: ID that specifies one specific image
+        :type file_id: str
+        """
         # Initilalize variable for collection
         fileCollection = self.database["fs.files"]
         # Find in the collection
