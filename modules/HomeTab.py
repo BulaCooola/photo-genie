@@ -40,7 +40,7 @@ class HomeTab:
         )
         instructions_label.pack(pady=10)
 
-        # Aesthetic or branding (optional)
+        # Footer
         footer_label = tk.Label(
             self.frame,
             text="Powered by OpenCV, GeminiAI, and Python",
