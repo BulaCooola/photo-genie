@@ -58,3 +58,5 @@ or
 python3 seed.py
 ```
 Please run this once only, or you will get duplicate file entries. The terminal should say "Done Seeding Database" if the seed was successful. 
+
+More instructions on the application :)
