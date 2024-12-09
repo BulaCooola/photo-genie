@@ -1,6 +1,7 @@
-# blurriness metric = variance of Laplacian of grayscale image.
-# slider sets threshold below which pictures are considered too blurry.
-# blurry pictures are copied to Discard folder inside folder being sorted
+# Blurriness metric = variance of Laplacian of grayscale image.
+# Slider sets threshold below which pictures are considered too blurry.
+# Blurry pictures are copied to Discard folder, the rest are copied to Keep folder.
+# The Discard and Keep folders are created inside the folder being sorted.
 
 import tkinter as tk
 import cv2
@@ -14,10 +15,11 @@ class BlurSortApp:
         
         self.folder_path = None
         self.picturesList = []
-        self.LapVars = []
+        self.blurValues = [] # blur vals
+        # self.num_blurry = 0 # unused
         
-        title = tk.Label(text="Blur Sort", height = 2, font=('Helvetica',15))
-        title.pack()
+        self.title = tk.Label(text="Blur Sort", height = 2, font=('Helvetica',15))
+        self.title.pack()
         
         # select folder
         self.select_button = tk.Button(
@@ -28,23 +30,57 @@ class BlurSortApp:
         )
         self.select_button.pack()
         
-        # current_value = tk.DoubleVar()
-        self.slider = tk.ttk.Scale(
-            self.root,
-            from_=0,
-            to=100,
-            orient='horizontal',
-            # variable=current_value
-        )
-        self.slider.pack()
+        self.init_threshold_options()
         
         self.sort_button = tk.Button(
             self.root,
             text="Sort",
             command=self.sort,
-            font=("Helvetica", 12),
+            font=("Helvetica", 12)
         )
-        self.sort_button.pack()
+        self.sort_button.pack(pady=10)
+        
+        # maybe just a label that says "Done!" would be better
+        # self.blurry_label = tk.Label(self.root, font=('Helvetica',10))
+        # will only display this once the sort button has been pressed
+    
+    def init_threshold_options(self):
+        self.threshold_frame1 = tk.Frame(self.root)
+        
+        self.threshold_label = tk.Label(self.threshold_frame1, text="Set Threshold:", font=('Helvetica',12))
+        self.threshold_label.pack(side="left") # grid(row=0,column=0)
+        
+        # current_value = tk.DoubleVar()
+        self.slider = tk.Scale(
+            self.threshold_frame1,
+            from_=0,
+            to=100,
+            orient='horizontal'
+            # variable=current_value
+        )
+        self.slider.set(100)
+        self.slider.pack(side="right") # .grid(row=0,column=1)
+        
+        self.threshold_frame1.pack()
+        self.threshold_frame2 = tk.Frame(self.root)
+        
+        self.default_label = tk.Label(self.threshold_frame2, text="Set Default Threshold:", font=('Helvetica',12))
+        self.default_label.pack(side="left")
+        
+        self.checkbox_value = tk.BooleanVar()
+        self.checkbox = tk.Checkbutton(self.threshold_frame2,
+                                       variable = self.checkbox_value,
+                                       command=self.set_default_threshold)
+        self.checkbox.pack(side="right")
+        
+        self.threshold_frame2.pack()
+    
+    def set_default_threshold(self):
+        if self.checkbox_value.get(): # self.checkbox.get() == True:
+            self.slider.set(100)
+            self.slider.config(state=tk.DISABLED)
+        else:
+            self.slider.config(state=tk.NORMAL)
     
     # only do this once we get a folder path via the select button / select_folder function
     def init_vars(self): # initialize some member variables
@@ -54,13 +90,7 @@ class BlurSortApp:
         
         for pic in self.picturesList:
             # print(pic)
-            self.LapVars.append(self.compute_LapVar(pic))
-        
-        # select folder
-        # label for num of pictures
-        # slider
-        # button that says "Sort"
-        # once you click sort, another label appears saying how many pics are too blurry
+            self.blurValues.append(self.compute_blurVal(pic))
         
     def select_folder(self):
         # Open file dialog
@@ -68,7 +98,7 @@ class BlurSortApp:
         # print(self.slider.get())
         # print(folder_path)
         
-        if self.folder_path: # is if statement necessary?
+        if self.folder_path:
             self.init_vars()
             # which will display an image for the first time
 
@@ -76,41 +106,35 @@ class BlurSortApp:
             # Disable the upload button - it gets grayed out and cannot be pressed
             # self.upload_button.config(state=tk.DISABLED)
 
-    def compute_LapVar(self,image_path):
+    def compute_blurVal(self,image_path):
         image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
         return cv2.Laplacian(image, cv2.CV_64F).var()
     
     # execute keep, dicard, maybe
     def sort(self):
-        # create folders
-        # if not os.path.exists(self.folder_path+'/Keep'):
-        #     os.mkdir(self.folder_path+'/Keep')
-        # print(self.folder_path)
-        if not os.path.exists(self.folder_path+'/Discard'):
-            os.mkdir(self.folder_path+'/Discard')
+        if self.folder_path:
+            # create folders
+            if not os.path.exists(self.folder_path+'/Keep'):
+                os.mkdir(self.folder_path+'/Keep')
+            if not os.path.exists(self.folder_path+'/Discard'):
+                os.mkdir(self.folder_path+'/Discard')
+            
+            # execute
+            # self.num_blurry = 0
+            for i in range(len(self.picturesList)):
+                # print(self.slider.get())
+                if self.blurValues[i] < self.slider.get():
+                    copy2(self.picturesList[i],self.folder_path+'/Discard')
+                    # self.num_blurry += 1
+                else:
+                    copy2(self.picturesList[i],self.folder_path+'/Keep')
+            
+            # self.blurry_label.config(text=str(self.num_blurry)+" pictures are too blurry and have been removed.")
+            # self.blurry_label.pack()
         
-        # execute
-        for i in range(len(self.picturesList)):
-            # print(self.slider.get())
-            if self.LapVars[i] < self.slider.get():
-                copy2(self.picturesList[i],self.folder_path+'/Discard')
-
 #-------------
 
-root = tk.Tk()
-# folder_path = 'Screenshots'
-app = BlurSortApp(root)
-root.mainloop()
-# app.sort()
-
-# put root = tk.Tk() and root.mainloop() into the app class init?
-# then the app's destructor can run the code below to execute the keep, discard, maybe
-
-#-------------
-# execute keep, dicard, maybe
-
-# for pic in keepList:
-#     copy2(pic,'Screenshots/Keep')
-# for pic in discardList:
-#     copy2(pic,'Screenshots/Discard')
-    # os.remove()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = BlurSortApp(root)
+    root.mainloop()
