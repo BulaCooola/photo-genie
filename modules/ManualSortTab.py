@@ -30,7 +30,10 @@ class ManualSortTab:
     # def __init__(self, root):
     def __init__(self, notebook):
 
+        # Create frame with parent notebook
         self.frame = tk.Frame(notebook)
+
+        # Initialize some variables
         self.folder_path = None
         self.current_img = None
         self.no_picture_label = None

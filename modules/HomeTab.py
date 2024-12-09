@@ -6,6 +6,7 @@ class HomeTab:
         """
         Creates a home tab with instructions
         """
+        # Create frame with parent notebook
         self.frame = tk.Frame(notebook)
 
         # Welcome title

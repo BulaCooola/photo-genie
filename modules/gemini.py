@@ -20,21 +20,21 @@ class Gemini:
         :param env_file: Path to the .env file containing API keys
         :type env_file: str
         """
-        self._env_file = env_file
-        self._model = None
-        self._model2 = None
+        self._env_file = env_file  # Holds env file
+        self._model = None  # Slower Model
+        self._model2 = None  # Faster Model
 
     def configure_api(self):
         """
         Load API keys and configure generative AI and Vision API clients.
         """
-        load_dotenv(self._env_file)
-        gemini_api_key = os.getenv("GEMINI_API_KEY")
-        if not gemini_api_key:
+        load_dotenv(self._env_file)  # Load the env file to get key
+        gemini_api_key = os.getenv("GEMINI_API_KEY")  # Get the key
+        if not gemini_api_key:  # Handle if key is not in the env file
             raise ValueError("API key is not set in .env file")
-        genai.configure(api_key=gemini_api_key)
-        self._model = genai.GenerativeModel("gemini-1.5-flash")
-        self._model2 = genai.GenerativeModel("gemini-1.5-flash-8b")
+        genai.configure(api_key=gemini_api_key)  # Configure Gemini
+        self._model = genai.GenerativeModel("gemini-1.5-flash")  # Main model
+        self._model2 = genai.GenerativeModel("gemini-1.5-flash-8b")  # Secondary Model
         print("Gemini API configured successfully")
 
     def generate_theme(self):
@@ -83,15 +83,19 @@ class Gemini:
         :return: Critique as a dictionary containing positive feedback and areas of improvement
         :rtype: dict
         """
+        # Handle unprovided data
         if not file_path:
             return ValueError("The file_path parameter cannot be empty.")
 
         print("Filepath: ", file_path)
         print("Theme: ", theme)
+
+        # Upload file into Gemini to critique
         uploaded_file = self.upload_file(file_path)
         try:
             if not theme:
                 print("\nGenerating critique...\n")
+                # Generate Critique
                 response = self._model.generate_content(
                     [
                         uploaded_file,
@@ -102,6 +106,7 @@ class Gemini:
                 )
             else:
                 print("\nGenerating critique...\n")
+                # Generate Critique with theme
                 response = self._model.generate_content(
                     [
                         uploaded_file,
@@ -111,6 +116,7 @@ class Gemini:
                         "Provide the response in JSON format with keys 'positive', 'negative', and 'overview'.",
                     ]
                 )
+            # Strip the unnecessary parts of the result
             result = response.text.strip()
             if result.startswith("```json") and result.endswith("```"):
                 result = result[7:-3].strip()
@@ -152,6 +158,7 @@ class Gemini:
         :return: Boolean representing if file is deleted or not
         :rtype: boolean
         """
+        # Handle unprovided data
         if not filename:
             raise ValueError("Name of file cannot be empty")
 

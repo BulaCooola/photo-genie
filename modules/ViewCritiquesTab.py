@@ -14,6 +14,7 @@ class ViewCritiquesTab:
     def __init__(self, notebook, dbfuncs):
         self.dbfuncs = dbfuncs
 
+        # Create frame with parent notebook
         self.frame = tk.Frame(notebook)
         self.frame.pack(fill=tk.BOTH, expand=True)
 

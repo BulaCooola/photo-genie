@@ -60,12 +60,14 @@ class MongoDBHandler:
         :param image_path: Path to the image file
         :type image_path: str
         """
+        # Find if file exists already in database
         file = self.fs.find_one({"file_path": image_path})
 
         if file:
             print(f"File already exists")
             return file_id
 
+        # Add file into the database
         with open(image_path, "rb") as file:
             file_id = self.fs.put(
                 file,
@@ -86,12 +88,12 @@ class MongoDBHandler:
 
     def getAllImages(self):
         """
-        Fetches all images in the database
+        Fetches a list of all images in the database
 
         :return: List of image objects
         :rtype: list
         """
-        filesCollection = self.database["fs.files"]
+        filesCollection = self.database["fs.files"]  # Fetch database
         return list(
             filesCollection.find({}, {"_id": 1, "filename": 1, "uploadDate": 1})
         )
@@ -179,9 +181,11 @@ class MongoDBHandler:
         :return: Response saying the theme added successfully
         :rtype: string
         """
+        # If parameters are not provided
         if not theme_name or not description:
             raise ValueError("Theme name and description cannot be empty")
 
+        # Format data for proper storage in database
         theme_data = {
             "theme_name": theme_name.strip(),
             "description": description.strip(),
@@ -220,8 +224,11 @@ class MongoDBHandler:
         :return: theme data
         :rtype: object
         """
+        # Handle unprovided data
         if not theme_id:
             raise ValueError("Theme ID must be provided.")
+
+        # Fetch collection in database
         themeCollection = self.themesCollection
 
         try:

@@ -113,6 +113,7 @@ class GenerateCritiqueTab:
             # Get critique for image
             theme = self.theme_var.get()
 
+            # Handle user's theme selection
             if theme == "Select Theme":
                 critique = self.gemini.critique_photo(
                     file_path=file_path, theme=None, theme_description=None
@@ -150,9 +151,10 @@ class GenerateCritiqueTab:
         :type file_path: str
         """
         try:
+            # save image into a variable
             image = Image.open(file_path)
             image.thumbnail((400, 300))  # Resize to fit in the window
-            photo = ImageTk.PhotoImage(image)
+            photo = ImageTk.PhotoImage(image)  # Make image tKinter-compatible
 
             self.image_label.config(image=photo)
             self.image_label.image = (
@@ -206,6 +208,8 @@ class GenerateCritiqueTab:
         # Clear the text box and insert the critique
         self.critique_text.config(state=tk.NORMAL)
         self.critique_text.delete("1.0", tk.END)
+
+        # Display the critique
         if isinstance(critique, dict):
             self.critique_text.insert(
                 tk.END,
@@ -217,4 +221,6 @@ class GenerateCritiqueTab:
             self.critique_text.insert(
                 tk.END, "Error generating critique. Please insert image again."
             )
+
+        # Make sure user cannot change the critique text
         self.critique_text.config(state=tk.DISABLED)
