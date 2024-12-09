@@ -18,6 +18,14 @@ You must install the following packages in order for the application to work.
 - pytest
 - opencv-python
 
+Other packages this project uses:
+- threading
+- os
+- json
+- datetime
+- shutil
+- io
+  
 ```
 pip install google-generativeai tk python-dotenv pillow pymongo pytest opencv-python
 ```
